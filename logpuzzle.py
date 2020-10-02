@@ -19,6 +19,11 @@ import re
 import sys
 import urllib.request
 import argparse
+from collections import defaultdict
+
+__author__ = """Anie Cross with help from instructor demo recordings,
+Group-B discussion topics, Google search, docs.python.org, stackoverflow.com,
+completed with help from Tutor HPost"""
 
 
 def read_urls(filename):
@@ -26,8 +31,22 @@ def read_urls(filename):
     extracting the hostname from the filename itself, sorting
     alphabetically in increasing order, and screening out duplicates.
     """
-    # +++your code here+++
-    pass
+    temp_list = defaultdict(list)
+    url_list = []
+    temp = filename.split('_')
+    domain = 'http://'+temp[1]
+
+    with open(filename) as f:
+        for line in f:
+            url_found = re.search(r'(\S*\Spuzzle\S*)', line)
+            if url_found:
+                temp_list[line[url_found.start():url_found.end()]]
+    for key in temp_list.keys():
+        url_list.append(domain + key)
+    if temp[0] == 'animal':
+        return sorted(url_list)
+    else:
+        return sorted(url_list, key=lambda x: x.split('-')[4])
 
 
 def download_images(img_urls, dest_dir):
@@ -38,8 +57,21 @@ def download_images(img_urls, dest_dir):
     to show each local image file.
     Creates the directory if necessary.
     """
-    # +++your code here+++
-    pass
+    img_count = 0
+    try:
+        os.mkdir(dest_dir)
+    except OSError as e:
+        print(e)
+        exit(1)
+    for url in img_urls:
+        img_name = 'img' + str(img_count) + '.jpg'
+        img_filename = os.path.join(dest_dir, 'img' + str(img_count)+'.jpg')
+        filename = os.path.join(dest_dir, 'index.html')
+        urllib.request.urlretrieve(url, img_filename)
+        f = open(filename, 'a')
+        f.write(f'<img src={img_name} />')
+        f.close
+        img_count += 1
 
 
 def create_parser():
